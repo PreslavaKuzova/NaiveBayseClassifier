@@ -1,40 +1,69 @@
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Main {
+    static final int N_FOLD_CROSS_VALIDATION_VALUE = 10;
+
     static List<FeatureBreakdown> breakdowns = new ArrayList<>();
-    static List<Record> records = new ArrayList<>();
+    static List<Record> allRecords = new ArrayList<>();
+    static List<List<Record>> nFoldCrossValidationRecords = new ArrayList<>();
 
     static double democratsPercentage;
     static double republicansPercentage;
 
     public static void main(String[] args) throws FileNotFoundException {
-        initValues();
+        allRecords = FileDevice.read("house-votes.data");
+        divideIntoNTestGroups();
 
-        //write a method to calculate the probability to be a democrat
-        //write a method to calculate the probability to be a republican
-        //compare the results
+        double modelAccuracy = 0.0;
 
-        for (int i = 0; i < records.size(); i++) {
-            System.out.println(assignToClassifier(records.get(i)));
+        for (int i = 0; i < N_FOLD_CROSS_VALIDATION_VALUE; i++) {
+            initCurrentTestValues(i);
+            System.out.println("Test No " + (i + 1));
+
+            int correctPredictions = 0;
+            for (Record record: nFoldCrossValidationRecords.get(i)) {
+                Classification prediction = assignToClassifier(record);
+                if(prediction == record.className()) {
+                    correctPredictions++;
+                }
+            }
+            double currentIterationAccuracy = correctPredictions * 1.0 / nFoldCrossValidationRecords.get(i).size();
+            modelAccuracy += currentIterationAccuracy;
+            System.out.println("Current test accuracy: " + currentIterationAccuracy);
+        }
+
+        System.out.println("Model accuracy: " + modelAccuracy / N_FOLD_CROSS_VALIDATION_VALUE);
+    }
+
+    private static void initCurrentTestValues(int indexOfCurrentTestGroup) {
+        democratsPercentage = nFoldCrossValidationRecords
+                .stream()
+                .filter(it -> nFoldCrossValidationRecords.indexOf(it) != indexOfCurrentTestGroup)
+                .flatMap(Collection::stream)
+                .filter(it -> it.className() == Classification.DEMOCRAT).count() * 1.0 / allRecords.size();
+
+        republicansPercentage = nFoldCrossValidationRecords
+                .stream()
+                .filter(it -> nFoldCrossValidationRecords.indexOf(it) != indexOfCurrentTestGroup)
+                .flatMap(Collection::stream)
+                .filter(it -> it.className() == Classification.REPUBLICAN).count() * 1.0 / allRecords.size();
+
+        for (Feature feature : Feature.values()) {
+            breakdowns.add(new FeatureBreakdown(allRecords, feature));
         }
     }
 
-    private static void initValues() throws FileNotFoundException {
-        records = FileDevice.read("house-votes.data");
+    private static void divideIntoNTestGroups() {
+        int chunk = allRecords.size() / N_FOLD_CROSS_VALIDATION_VALUE;
 
-        democratsPercentage = records
-                .stream()
-                .filter(it -> it.className() == Classification.DEMOCRAT).count() * 1.0 / records.size();
-
-        republicansPercentage = records
-                .stream()
-                .filter(it -> it.className() == Classification.REPUBLICAN).count() * 1.0 / records.size();
-
-        for (Feature feature : Feature.values()) {
-            breakdowns.add(new FeatureBreakdown(records, feature));
+        for (int i = 0; i < allRecords.size(); i += chunk) {
+            nFoldCrossValidationRecords
+                    .add(allRecords.subList(i, Math.min(i + chunk, allRecords.size())));
         }
+
     }
 
     private static Classification assignToClassifier(Record record) {
