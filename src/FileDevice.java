@@ -20,22 +20,22 @@ public class FileDevice {
                         new Record(
                                 Classification.getClassification(values[0]),
                                 Arrays.asList(
-                                        Feature.getFeature(values[1]),
-                                        Feature.getFeature(values[2]),
-                                        Feature.getFeature(values[3]),
-                                        Feature.getFeature(values[4]),
-                                        Feature.getFeature(values[5]),
-                                        Feature.getFeature(values[6]),
-                                        Feature.getFeature(values[7]),
-                                        Feature.getFeature(values[8]),
-                                        Feature.getFeature(values[9]),
-                                        Feature.getFeature(values[10]),
-                                        Feature.getFeature(values[11]),
-                                        Feature.getFeature(values[12]),
-                                        Feature.getFeature(values[13]),
-                                        Feature.getFeature(values[14]),
-                                        Feature.getFeature(values[15]),
-                                        Feature.getFeature(values[16]))
+                                        Answer.getAnswer(values[1]),
+                                        Answer.getAnswer(values[2]),
+                                        Answer.getAnswer(values[3]),
+                                        Answer.getAnswer(values[4]),
+                                        Answer.getAnswer(values[5]),
+                                        Answer.getAnswer(values[6]),
+                                        Answer.getAnswer(values[7]),
+                                        Answer.getAnswer(values[8]),
+                                        Answer.getAnswer(values[9]),
+                                        Answer.getAnswer(values[10]),
+                                        Answer.getAnswer(values[11]),
+                                        Answer.getAnswer(values[12]),
+                                        Answer.getAnswer(values[13]),
+                                        Answer.getAnswer(values[14]),
+                                        Answer.getAnswer(values[15]),
+                                        Answer.getAnswer(values[16]))
                         )
                 );
             }
